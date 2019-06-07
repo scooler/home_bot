@@ -1,0 +1,20 @@
+- git:
+    local-name: slam_gmapping
+    uri: git@github.com:ros-perception/slam_gmapping.git
+    version: master
+
+- git:
+    local-name: turtlebot
+    uri: git@github.com:turtlebot/turtlebot.git
+    version: master
+
+- git:
+    local-name: turtlebot_interactions
+    uri: git@github.com:turtlebot/turtlebot_interactions.git
+    version: master
+
+- git:
+    local-name: turtlebot_simulator
+    uri: git@github.com:turtlebot/turtlebot_simulator.git
+    version: master
+
