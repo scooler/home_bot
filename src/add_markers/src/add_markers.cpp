@@ -33,23 +33,8 @@
 #include <visualization_msgs/Marker.h>
 // %EndTag(INCLUDES)%
 
-// %Tag(INIT)%
-int main( int argc, char** argv )
-{
-  ros::init(argc, argv, "add_markers");
-  ros::NodeHandle n;
-  ros::Rate r(1);
-  ros::Publisher marker_pub = n.advertise<visualization_msgs::Marker>("visualization_marker", 1);
-// %EndTag(INIT)%
-
-  // Set our initial shape type to be a cube
-// %Tag(SHAPE_INIT)%
-  uint32_t shape = visualization_msgs::Marker::CUBE;
-// %EndTag(SHAPE_INIT)%
-
-// %Tag(MARKER_INIT)%
-  while (ros::ok())
-  {
+void publishMarker(double x, double y, std_msgs::ColorRGBA color, ros::Publisher marker_pub){
+    uint32_t shape = visualization_msgs::Marker::CUBE;
     visualization_msgs::Marker marker;
     // Set the frame ID and timestamp.  See the TF tutorials for information on these.
     // marker.header.frame_id = "/my_frame";
@@ -78,8 +63,8 @@ int main( int argc, char** argv )
 // %Tag(POSE)%
 
   // Define a position and orientation for the robot to reach
-    marker.pose.position.x = 2.15302252769;
-    marker.pose.position.y = -6.16027069092;
+    marker.pose.position.x = x;
+    marker.pose.position.y = y;
     marker.pose.position.z = 0;
     marker.pose.orientation.x = 0.0;
     marker.pose.orientation.y = 0.0;
@@ -96,10 +81,7 @@ int main( int argc, char** argv )
 
     // Set the color -- be sure to set alpha to something non-zero!
 // %Tag(COLOR)%
-    marker.color.r = 0.0f;
-    marker.color.g = 0.0f;
-    marker.color.b = 1.0f;
-    marker.color.a = 1.0;
+    marker.color = color;
 // %EndTag(COLOR)%
 
 // %Tag(LIFETIME)%
@@ -112,13 +94,41 @@ int main( int argc, char** argv )
     {
       if (!ros::ok())
       {
-        return 0;
+        return;
       }
       ROS_WARN_ONCE("Please create a subscriber to the marker");
       sleep(1);
     }
     marker_pub.publish(marker);
 // %EndTag(PUBLISH)%
+}
+
+// %Tag(INIT)%
+int main( int argc, char** argv )
+{
+  int count = 0;
+  ros::init(argc, argv, "add_markers");
+  ros::NodeHandle n;
+  ros::Rate r(1);
+  ros::Publisher marker_pub = n.advertise<visualization_msgs::Marker>("visualization_marker", 1);
+// %EndTag(INIT)%
+
+  // Set our initial shape type to be a cube
+// %Tag(SHAPE_INIT)%
+
+// %EndTag(SHAPE_INIT)%
+
+// %Tag(MARKER_INIT)%
+
+  while (ros::ok())
+  {
+    std_msgs::ColorRGBA color;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    if (count < 5){
+      publishMarker(2.15302252769, -6.16027069092, color, marker_pub);
+      ROS_INFO("Item shoped up");
+    }
     // Cycle between different shapes
 // %Tag(CYCLE_SHAPES)%
 
@@ -138,6 +148,18 @@ int main( int argc, char** argv )
     //   break;
     // }
 // %EndTag(CYCLE_SHAPES)%
+    if (count > 5 && count <= 10){
+      ROS_INFO("Second item shoped up");
+      publishMarker(-4.97087669373, -1.49952840805, color, marker_pub);
+    }
+
+    if (count > 10){
+      color.a = 0.0;
+      ROS_INFO("Removing item - publishing empty");
+      publishMarker(-4.97087669373, -1.49952840805, color, marker_pub);
+    }
+
+    count ++;
 
 // %Tag(SLEEP_END)%
     r.sleep();
