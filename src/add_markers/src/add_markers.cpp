@@ -31,6 +31,7 @@
 // %Tag(INCLUDES)%
 #include <ros/ros.h>
 #include <visualization_msgs/Marker.h>
+#include <std_msgs/Int8.h>
 // %EndTag(INCLUDES)%
 
 void publishMarker(double x, double y, std_msgs::ColorRGBA color, ros::Publisher marker_pub){
@@ -102,6 +103,14 @@ void publishMarker(double x, double y, std_msgs::ColorRGBA color, ros::Publisher
     marker_pub.publish(marker);
 // %EndTag(PUBLISH)%
 }
+// std::string position = "UNKNOWN";
+int8_t position;
+void positionCallback(const std_msgs::Int8& msg){ //std_msgs::String
+  position = msg.data;
+  ROS_INFO("Got callback - %d", msg.data);
+}
+// std_msgs/Int8
+// std_msgs/String
 
 // %Tag(INIT)%
 int main( int argc, char** argv )
@@ -115,6 +124,7 @@ int main( int argc, char** argv )
 
   // Set our initial shape type to be a cube
 // %Tag(SHAPE_INIT)%
+  ros::Subscriber subPosition = n.subscribe("bot_position", 10, positionCallback);
 
 // %EndTag(SHAPE_INIT)%
 
@@ -122,48 +132,37 @@ int main( int argc, char** argv )
 
   while (ros::ok())
   {
-    std_msgs::ColorRGBA color;
-    color.b = 1.0f;
-    color.a = 1.0f;
-    if (count < 5){
-      publishMarker(2.15302252769, -6.16027069092, color, marker_pub);
-      ROS_INFO("Item shoped up");
+    if (position != 0){//"UNKNOWN"){
+      ROS_INFO("Interesting position");
+      std_msgs::ColorRGBA color;
+      color.b = 1.0f;
+      color.a = 1.0f;
+      // if (count < 5){
+      if (position == 1){
+        publishMarker(2.15302252769, -6.16027069092, color, marker_pub);
+        ROS_INFO("Item shoped up");
+      }
+
+      if (position == 2){
+      // if (count > 5 && count <= 10){
+        ROS_INFO("Second item shoped up");
+        publishMarker(-4.97087669373, -1.49952840805, color, marker_pub);
+      }
+
+      // if (count > 10){
+      if (position == 3){
+        color.a = 0.0;
+        ROS_INFO("Removing item - publishing empty");
+        publishMarker(-4.97087669373, -1.49952840805, color, marker_pub);
+      }
+
+      count ++;
     }
-    // Cycle between different shapes
-// %Tag(CYCLE_SHAPES)%
-
-    // switch (shape)
-    // {
-    // case visualization_msgs::Marker::CUBE:
-    //   shape = visualization_msgs::Marker::SPHERE;
-    //   break;
-    // case visualization_msgs::Marker::SPHERE:
-    //   shape = visualization_msgs::Marker::ARROW;
-    //   break;
-    // case visualization_msgs::Marker::ARROW:
-    //   shape = visualization_msgs::Marker::CYLINDER;
-    //   break;
-    // case visualization_msgs::Marker::CYLINDER:
-    //   shape = visualization_msgs::Marker::CUBE;
-    //   break;
-    // }
-// %EndTag(CYCLE_SHAPES)%
-    if (count > 5 && count <= 10){
-      ROS_INFO("Second item shoped up");
-      publishMarker(-4.97087669373, -1.49952840805, color, marker_pub);
-    }
-
-    if (count > 10){
-      color.a = 0.0;
-      ROS_INFO("Removing item - publishing empty");
-      publishMarker(-4.97087669373, -1.49952840805, color, marker_pub);
-    }
-
-    count ++;
-
+    ROS_INFO("sleeping - position %d", position);
 // %Tag(SLEEP_END)%
     r.sleep();
   }
 // %EndTag(SLEEP_END)%
 }
 // %EndTag(FULLTEXT)%
+
